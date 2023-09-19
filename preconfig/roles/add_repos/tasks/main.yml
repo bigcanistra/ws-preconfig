@@ -1,0 +1,68 @@
+---
+- name: Uncomment partner repos
+  replace:
+    dest: '/etc/apt/sources.list'
+    regexp: '^([#     ]*)deb (.*)partner'
+    replace: 'deb \2partner'
+    owner: root
+    group: root
+    mode: 644
+
+- name: Add google chrome GPG key
+  apt_key:
+    url: "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+    keyring: /etc/apt/trusted.gpg.d/chrome.gpg
+
+- name: Add skype GPG key
+  apt_key:
+    url: "https://repo.skype.com/data/SKYPE-GPG-KEY"
+    keyring: /etc/apt/trusted.gpg.d/skype.gpg
+
+- name: Add element GPG key
+  apt_key:
+    url: "https://packages.element.io/debian/element-io-archive-keyring.gpg"
+    keyring: /etc/apt/trusted.gpg.d/element-io-archive-keyring.gpg
+
+- name: Remove outdated files in /etc/apt/sources.list.d/
+  file:
+    path: "/etc/apt/sources.list.d/{{ item }}"
+    state: absent
+  with_items: "{{ remove_files_list }}"
+
+- name: Remove outdated repositories
+  apt_repository:
+    repo: "{{ item }}"
+    state: absent
+  with_items: "{{ repo_remove }}"
+
+- name: Add repositories_named
+  apt_repository:
+    mode: 644
+    filename: "{{ item.filename }}"
+    repo: "{{ item.repo }}"
+    state: present
+  with_items: "{{ repo_install_named }}"
+
+- name: Apt-get update
+  apt:
+    update_cache: yes
+  ignore_errors: true
+
+- name: Fix apt files permissions
+  file:
+    dest=/etc/apt/sources.list.d/
+    owner=root
+    group=root
+    mode=0644
+    recurse=yes
+  tags:
+    - aptfix
+
+- name: Fix apt folder permissions
+  file:
+    dest=/etc/apt/sources.list.d/
+    owner=root
+    group=root
+    mode=0755
+  tags:
+    - aptfix

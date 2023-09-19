@@ -1,0 +1,3 @@
+---
+- name: Disable shell user ubuntu
+  shell: "usermod --lock ubuntu"

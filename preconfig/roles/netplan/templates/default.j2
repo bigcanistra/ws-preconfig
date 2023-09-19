@@ -1,0 +1,14 @@
+
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    eth0:
+     {}
+  vlans:
+   eth0.{{ vlan_tag }}:
+      id: {{ vlan_tag }}
+      link: eth0
+      dhcp4: yes
+  nameservers:
+          search: [ws.setronica.net]

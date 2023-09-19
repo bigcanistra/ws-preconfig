@@ -1,0 +1,19 @@
+---
+- hosts: all
+  remote_user: ubuntu
+  become: yes
+  gather_facts: yes
+
+  roles:
+  - add_repos
+  - install_apt_pkg
+  - install_snap_pkg
+  - afterconfig
+  - passwd_complexity
+  - tune_sysctl
+  - netplan
+  - apt_upgrade
+  - auto_apt_upgrade
+  - docker_install
+  - clamav
+  - boot_disk_autoclean

@@ -1,0 +1,77 @@
+---
+- name: Install vlan
+  apt:
+    name: "vlan"
+    install_recommends: yes
+    state: latest
+  ignore_errors: true
+  tags:
+    - net
+
+- name: "Restore the old network interface name (1/2)"
+  lineinfile:
+    dest: /etc/default/grub
+    backup: yes
+    owner: root
+    group: root
+    mode: 644
+    regexp: '(.*GRUB_CMDLINE_LINUX=\")(?!.*biosdevname=0)(.*\")'
+    line: '\1biosdevname=0 \2'
+    state: present
+    backrefs: yes
+  register: grub_config_1
+  tags:
+    - grub
+
+- name: "Restore the old network interface name (2/2)"
+  lineinfile:
+    dest: /etc/default/grub
+    backup: yes
+    owner: root
+    group: root
+    mode: 644
+    regexp: '(.*GRUB_CMDLINE_LINUX=\")(?!.*net.ifnames=0)(.*\")'
+    line: '\1net.ifnames=0 \2'
+    state: present
+    backrefs: yes
+  register: grub_config_2
+  tags:
+    - grub
+
+- name: Rebuilt grub configuration if changed
+  command: grub-mkconfig -o /boot/grub/grub.cfg
+  become: yes
+  when: grub_config_1.changed or grub_config_2.changed
+  tags:
+    - grub
+
+- name: "Add eth0 net iface with vlan"
+  template:
+    src: "default.j2"
+    dest: "/etc/netplan/50-cloud-init.yaml"
+    backup: yes
+    owner: root
+    group: root
+    mode: 644
+  tags:
+    - net
+  when: vlan_tag is defined
+
+- name: "Add eth0 net iface no vlan"
+  template:
+      src: "default_v2.j2"
+      dest: "/etc/netplan/50-cloud-init.yaml"
+      backup: yes
+      owner: root
+      group: root
+      mode: 644
+  tags:
+      - net
+  when: vlan_tag is not defined
+
+- name: Restart interface
+  shell: netplan apply;
+  ignore_errors: true
+  when: 'restart_iface == true'
+  tags:
+    - net

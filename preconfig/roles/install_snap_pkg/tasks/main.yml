@@ -1,0 +1,5 @@
+---
+- name: Install packages
+  community.general.snap:
+    name: "{{ pkg_list }}"
+    channel: latest/stable

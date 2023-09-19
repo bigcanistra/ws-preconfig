@@ -1,0 +1,20 @@
+---
+
+fi_key_server: keyserver.ubuntu.com
+fi_key_id_slack: db085a08ca13b8acb917e0f6d938ec0d038651bd
+
+repo_install_named:
+   - { repo: "deb [arch=amd64] https://repo.skype.com/deb/ stable main", filename: "skype-stable" }
+   - { repo: "deb [arch=amd64] https://dl.google.com/linux/chrome/deb/ stable main", filename: "google-chrome" }
+   - { repo: "deb [arch=amd64] https://packages.element.io/debian/ default main", filename: "element-desktop"}
+   - { repo: "ppa:solaar-unifying/stable", filename: "solaar"}
+
+repo_remove:
+   - "deb http://dl.google.com/linux/chrome/deb/ stable main"
+   - "deb http://dl.google.com/linux/talkplugin/deb/ stable main"
+   - "deb https://packages.element.io/debian/ default main"
+
+remove_files_list:
+   - "dl_google_com_linux_chrome_deb.list"
+   - "dl_google_com_linux_talkplugin_deb.list"
+   - "google-talkplugin.list.list"

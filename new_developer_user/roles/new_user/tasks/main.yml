@@ -1,0 +1,32 @@
+---
+- name: Add group "{{ username }}"
+  group:
+    name: '{{ username }}'
+    state: present
+
+- name: Add user "{{ username }}"
+  user:
+    name: '{{ username }}'
+    password: '{{ password }}'
+    update_password: on_create
+    group: '{{ username }}'
+    groups: "sudo, {{ username }}"
+    expires: "4595732873"
+    create_home: yes
+    shell: /bin/bash
+    state: present
+
+- name: Setup home owner
+  file:
+    path: /home/{{ username }}
+    state: directory
+    recurse: yes
+    owner: '{{ username }}'
+    group: '{{ username }}'
+
+- name: Setup home dir mode
+  file:
+    path: /home/{{ username }}
+    state: directory
+    recurse: no
+    mode: "0755"

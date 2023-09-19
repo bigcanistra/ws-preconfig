@@ -1,0 +1,62 @@
+---
+- name: Add consul repo
+  apt_repository:
+    mode: 0644
+    repo: "ppa:bcandrea/consul"
+
+- name: Update cache
+  apt:
+    update_cache: yes
+  ignore_errors: true
+
+- name: Install consul
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - "consul"
+    - "jq"
+
+- name: Copy config files
+  template:
+    src: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+    force: yes
+    owner: root
+    group: root
+    mode: 774
+    backup: yes
+  with_dict: "{{ configs }}"
+
+- name: Set "/var/lib/consul" directory permissions
+  file:
+    path: /var/lib/consul
+    state: directory
+    recurse: yes
+    owner: consul
+    group: consul
+    mode: 0755
+
+- name: Set "/etc/consul.d" directory permissions
+  file:
+    path: /etc/consul.d
+    state: directory
+    recurse: yes
+    owner: consul
+    group: consul
+    mode: 0774
+
+- name: Setup consul service (trusty)
+  service:
+    name: consul
+    enabled: yes
+    state: started
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "trusty")
+
+- name: Setup consul service (xenial)
+  systemd:
+    name: consul
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "xenial")

@@ -1,0 +1,27 @@
+---
+- name: Install required packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - "clamav"
+    - "clamav-freshclam"
+
+- name: Start service
+  shell: "service clamav-freshclam start"
+
+- name: Script to scan whole system
+  template:
+    src: clamscan-monthly.sh.j2
+    dest: /usr/local/sbin/clamscan-monthly.sh
+    owner: root
+    group: root
+    mode: 755
+
+- name: Scedule a system scan
+  file:
+    src: /usr/local/sbin/clamscan-monthly.sh
+    dest: /etc/cron.monthly/clamscan-monthly.sh
+    owner: root
+    group: root
+    state: link

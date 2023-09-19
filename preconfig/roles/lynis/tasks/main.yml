@@ -1,0 +1,37 @@
+---
+- name: Add an apt key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: C80E383C3DE9F082E01391A0366C67DE91CA5D5F
+
+- name: Install required package
+  apt:
+    name: apt-transport-https
+    state: latest
+
+- name: Add repository
+  apt_repository:
+    repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
+    state: present
+
+- name: Install Lynis
+  apt:
+    name: lynis
+    state: latest
+
+- name: Create weekly lynis report script
+  template:
+    src: lynis-weekly-rport.sh.j2
+    dest: /etc/lynis/lynis-weekly-rport.sh
+    owner: root
+    group: root
+    mode: 755
+
+- name: Add weekly lynis report to cron
+  cron:
+    name: "weekly lynis report"
+    weekday: 0
+    minute: 0
+    hour: 12
+    user: root
+    job: "/etc/lynis/lynis-weekly-rport.sh"

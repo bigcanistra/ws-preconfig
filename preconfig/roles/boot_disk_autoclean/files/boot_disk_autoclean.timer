@@ -1,0 +1,10 @@
+[Unit]
+Description=Run boot_disk_autoclean.sh monthly
+
+[Timer]
+Unit=boot_disk_autoclean.service
+OnCalendar=Monthly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

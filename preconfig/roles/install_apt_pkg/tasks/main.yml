@@ -1,0 +1,13 @@
+---
+- name: Install packages
+  apt:
+    pkg: "{{ pkg_list }}"
+    state: latest
+    install_recommends: yes
+    update_cache: yes
+#  with_items: "{{ pkg_list }}"
+
+- name: Upgrade all packages
+  apt:
+    upgrade: dist
+  ignore_errors: true

@@ -1,0 +1,38 @@
+---
+- name: Copy script files to host
+  copy:
+    src: boot_disk_autoclean.sh
+    dest: /usr/bin/boot_disk_autoclean.sh
+    mode: a+x
+    owner: root
+    group: root
+
+- name: Copy service files to host
+  copy:
+    src: boot_disk_autoclean.service
+    dest: /etc/systemd/system/boot_disk_autoclean.service
+    mode: a+x
+    owner: root
+    group: root
+
+- name: Copy timer files to host
+  copy:
+    src: boot_disk_autoclean.timer
+    dest: /etc/systemd/system/boot_disk_autoclean.timer
+    mode: a+x
+    owner: root
+    group: root
+
+- name: enable system.d unit and reload it
+  ansible.builtin.systemd:
+    name: boot_disk_autoclean.service
+    enabled: yes
+    daemon_reload: yes
+
+- name: enable system.d timer and reload it
+  ansible.builtin.systemd:
+    name: boot_disk_autoclean.timer
+    enabled: yes
+    force: yes
+    daemon_reload: yes
+    state: started

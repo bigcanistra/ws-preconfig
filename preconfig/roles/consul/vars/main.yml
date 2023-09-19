@@ -1,0 +1,5 @@
+---
+configs:
+   consul_conf:
+      src: 20-agent.json
+      dest: /etc/consul.d/20-agent.json

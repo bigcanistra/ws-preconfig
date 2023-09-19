@@ -1,0 +1,60 @@
+---
+- name: Add apt key docker for Ubuntu
+  apt_key:
+    url: "{{ docker_repo_key_url }}"
+    id: "{{ docker_repo_key_id }}"
+    keyring: /etc/apt/trusted.gpg.d/docker.gpg
+
+- name: Add repo & update
+  apt_repository:
+    repo: "deb [arch=amd64] {{ docker_repo_url }} {{ ansible_distribution_release }} stable"
+    state: present
+    update_cache: yes
+
+- name: Install docker package 20.04
+  apt:
+    name: "docker-ce={{ docker_version_focal }}"
+    state: present
+    install_recommends: yes
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "focal")
+
+- name: Install docker package 22.04
+  apt:
+    name: "docker-ce={{ docker_version_jammy }}"
+    state: present
+    install_recommends: yes
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "jammy")
+
+- name: Pin Docker package release Ubuntu 20.04
+  copy:
+    dest: /etc/apt/preferences.d/docker-engine
+    content: |
+      Package: docker-ce
+      Pin: version {{ docker_version_focal }}
+      Pin-Priority: 1002
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "focal")
+
+- name: Pin Docker package release Ubuntu 22.04
+  copy:
+    dest: /etc/apt/preferences.d/docker-engine
+    content: |
+      Package: docker-ce
+      Pin: version {{ docker_version_jammy }}
+      Pin-Priority: 1002
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "jammy")
+
+- name: Create config for docker daemon
+  template:
+    src: "daemon.json.j2"
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+
+- name: Add user to 'docker' group
+  user:
+    name: "{{ workstation_owner }}"
+    groups: "docker"
+    append: yes
+  when: workstation_owner is defined
+  notify:
+    - restart docker

@@ -1,0 +1,55 @@
+---
+- name: Add apt-key
+  apt_key:
+    url: "https://packages.elasticsearch.org/GPG-KEY-elasticsearch"
+    state: present
+
+- name: Add repos
+  apt_repository:
+    repo: "deb https://packages.elastic.co/beats/apt stable main"
+    state: present
+    filename: "beats"
+    update_cache: yes
+#https://www.elastic.co/guide/en/beats/libbeat/1.2/setup-repositories.html
+
+- name: Install filebeat
+  apt:
+     name: filebeat
+     state: latest
+
+#- name: Configuring
+#  lineinfile:
+#    dest: "/etc/filebeat/filebeat.yml"
+#    backup: yes
+#    owner: root
+#    group: root
+#    mode: 644
+#    regexp: "{{ item.regexp }}"
+#    line: "{{ item.line }}"
+#    state: present
+#    backrefs: yes
+#  with_items:
+#    - { regexp: '(^ *- /var/log/)\*.log$', line: '\1*log' }
+#    - { regexp: '(^ *elasticsearch:)$', line: '#\1' }
+#    - { regexp: '(^ *hosts: \["localhost:9200"\])$', line: '#\1' }
+#    - { regexp: '(^ *)#(logstash:)$', line: '\1\2' }
+#    - { regexp: '(^ *)#hosts: \["localhost:5044"\]$', line: '\1hosts: ["logsnd.setronica.net:5044"]\n\1worker: 1' }
+#    - { regexp: '(^ *)#(to_syslog: true)$', line: '\1\2' }
+#    - { regexp: '(^ *)(files:)$', line: '#\1\2' }
+#    - { regexp: '(^ *)(rotateeverybytes: 10485760 # = 10MB)$', line: '#\1\2' }
+
+
+- name: Configure filebeat
+  template:
+    backup: yes
+    src: "filebeat.yml"
+    dest: "/etc/filebeat/filebeat.yml"
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Restart filebeat service
+  service: 
+    name: filebeat
+    enabled: yes
+    state: restarted

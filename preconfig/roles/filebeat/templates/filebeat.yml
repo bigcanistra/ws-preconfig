@@ -1,0 +1,14 @@
+filebeat:
+  prospectors:
+    -
+      paths:
+        - /var/log/*log
+      input_type: log
+  registry_file: /var/lib/filebeat/registry
+output:
+  logstash:
+    hosts: ["logsnd.setronica.net:5044"]
+    worker: 1
+shipper:
+logging:
+  to_syslog: true

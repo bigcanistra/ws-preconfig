@@ -1,0 +1,8 @@
+---
+- name: Add user ubuntu
+  hosts: all
+  remote_user: ubuntu
+  become: yes
+  max_fail_percentage: 100
+  roles:
+    - user_ubuntu

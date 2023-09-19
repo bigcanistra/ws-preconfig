@@ -1,0 +1,81 @@
+---
+- name: Add apt-key
+  apt_key:
+    url: "https://repos.influxdata.com/influxdb.key"
+    state: present
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "focal")
+
+- name: Add telegraf repo
+  apt_repository:
+    mode: 644
+    filename: "influxdb"
+    repo: "deb https://repos.influxdata.com/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+  when: (ansible_distribution == "Ubuntu" and ansible_distribution_release == "focal")
+
+- name: Apt-get update
+  apt:
+    update_cache: yes
+  ignore_errors: true
+
+- name: Install telegraf package
+  apt:
+    name: "telegraf"
+    state: latest
+
+- name: Install required package for collecting metrics
+  apt:
+    name: 
+      - smartmontools
+      - lm-sensors
+    state: latest
+
+- name: Telegraf config
+  template:
+    src: influxdb.conf.j2
+    dest: /etc/telegraf/telegraf.d/influxdb.conf
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Remove disk.sh
+  file:
+    state: absent
+    path: /etc/telegraf/telegraf.d/disk.sh
+
+- name: Remove hwinventory.sh
+  file:
+    state: absent
+    path: /etc/telegraf/telegraf.d/hwinventory.sh
+
+- name: Remove battery.sh
+  file:
+    state: absent
+    path: /etc/telegraf/telegraf.d/battery.sh
+
+- name: Telegraf service override directory
+  file:
+    path: /etc/systemd/system/telegraf.service.d/
+    state: directory
+
+- name: Telegraf service override directory
+  template:
+    src: override.conf.j2
+    dest: /etc/systemd/system/telegraf.service.d/override.conf
+    owner: root
+    group: root
+    mode: 0775
+
+- name: Add user "telegraf" to sudo
+  lineinfile:
+    path: /etc/sudoers.d/telegraf_user
+    line: 'telegraf ALL=(ALL) NOPASSWD: ALL'
+    state: present
+    mode: 0440
+    create: yes
+
+- name: Restart service telegraf
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: telegraf

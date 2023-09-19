@@ -1,0 +1,21 @@
+---
+- name: Add new user
+  hosts: all
+  vars_prompt:
+    - name: username
+      prompt: Please type new username for this host
+      private: no
+
+    - name: password
+      private: yes
+      encrypt: sha512_crypt
+      confirm: yes
+      salt_size: 7
+      prompt: Enter sequre passwd
+
+  remote_user: ubuntu
+  become: yes
+  max_fail_percentage: 100
+  roles:
+    - new_user
+    - disable_user_ubuntu

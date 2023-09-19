@@ -1,0 +1,47 @@
+---
+- name: Uncomment user ubuntu in passwd file if it's commented
+  shell: "sed -i \"s/#*ubuntu/ubuntu/g\"  /etc/passwd"
+
+- name: Add group ubuntu
+  group:
+    name: ubuntu
+    state: present
+
+- name: Add user ubuntu
+  user:
+    name: ubuntu
+    group: ubuntu
+    groups: "sudo,ubuntu"
+    shell: /bin/bash
+    expires: "4595732873"
+    state: present
+
+#- name: Setup home owner
+#  file:
+#    path: /home/ubuntu
+#    state: directory
+#    recurse: yes
+#    owner: ubuntu
+#    group: ubuntu
+
+- name: Setup home dir mode
+  file:
+    path: /home/ubuntu
+    state: directory
+    recurse: no
+    mode: "0755"
+
+- name: Add rsa key
+  authorized_key: 
+    user: ubuntu 
+    key: "{{ lookup('file', 'id_rsa.pub') }}"
+
+- name: Disable sudo password request
+  lineinfile:
+    dest: "/etc/sudoers.d/ubuntu_user"
+    line:   "ubuntu ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    create: yes
+    owner: root
+    group: root
+    mode: 644

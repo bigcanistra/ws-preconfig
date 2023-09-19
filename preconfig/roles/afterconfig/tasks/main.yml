@@ -1,0 +1,39 @@
+---
+- name: Set default locale
+  replace:
+     dest: "/etc/default/locale"
+     regexp: "ru_RU.UTF-8"
+     replace: "en_US.UTF-8"
+     owner: root
+     group: root
+     mode: 0644
+
+- name: Change etckeeper to work with git
+  replace:
+     dest: "/etc/etckeeper/etckeeper.conf"
+     regexp: "VCS=\"bzr\""
+     replace: "VCS=\"git\""
+     owner: root
+     group: root
+     mode: 0644
+
+
+- name: Init etckeeper
+  shell: etckeeper init
+
+- name: Record unsaved changes in etckeeper
+  shell: "if etckeeper unclean && true;
+	          then etckeeper commit 'ansible commit test'; fi"
+
+#  shell: etckeeper unclean && etckeeper commit "ansible commit"
+#  ignore_errors: true
+
+- name: Setup parallel (create dir)
+  file:
+    path: /etc/skel/.parallel
+    state: directory
+
+- name: Setup parallel (touch file)
+  file:
+    path: /etc/skel/.parallel/will-cite
+    state: touch

@@ -1,0 +1,15 @@
+---
+- name: install unattended-upgrades
+  apt:
+    name: unattended-upgrades
+    state: latest
+ 
+- name: Create 20auto-upgrades
+  copy:
+   dest: /etc/apt/apt.conf.d/20auto-upgrades
+   content: |
+      APT::Periodic::Update-Package-Lists "{{upgrade_period}}";
+      APT::Periodic::Unattended-Upgrade "{{upgrade_period}}";
+   owner: root
+   group: root
+   mode: 644

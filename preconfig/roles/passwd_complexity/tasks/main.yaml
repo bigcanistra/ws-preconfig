@@ -1,0 +1,12 @@
+- name: Install pam_pwquality pkg
+  apt:
+    name: libpam-pwquality
+    state: present
+    install_recommends: yes
+
+- name: Modify common-password
+  lineinfile:
+    dest: /etc/pam.d/common-password
+    regexp: '^password*.*requisite*.*pam_pwquality'
+    line: 'password    requisite   pam_pwquality.so retry=1 minlen=10 maxrepeat=3 dcredit=-1 ucredit=-1 lcredit=-1 ocredit=-1'
+

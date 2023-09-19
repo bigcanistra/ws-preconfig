@@ -1,0 +1,10 @@
+ [Unit]
+ Description=Boot Disk monthly auto-cleaning script
+ Wants=boot_disk_autoclean.timer
+
+ [Service]
+ Type=oneshot
+ ExecStart=/usr/bin/boot_disk_autoclean.sh
+
+ [Install]
+ WantedBy=multi-user.target

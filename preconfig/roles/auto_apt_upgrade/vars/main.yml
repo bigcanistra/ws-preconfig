@@ -1,0 +1,2 @@
+---
+upgrade_period: 7  # How often Unattended Upgrade will run (in days)

@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+hostname="$(hostname)"
+date="$(date '+%Y-%m-%d')"
+WORKDIR="$(mktemp -d)"
+if [ -d "${WORKDIR}" ]; then
+  cd "${WORKDIR}"
+  lynis audit system > ./overview.log
+  report="${hostname}-${date}.tar.gz"
+  tar -czf "${report}" ./overview.log /var/log/lynis-report.dat /var/log/lynis.log
+
+  ftp -n {{ftp_server}} <<END_SCRIPT
+  quote USER {{ftp_user}}
+  quote PASS {{ftp_pass}}
+  binary
+  put ${report}
+  quit
+END_SCRIPT
+
+  cd
+  rm "${WORKDIR}/${report}"
+  rm "${WORKDIR}/overview.log"
+  rmdir "${WORKDIR}"
+else
+  echo "Can not create temporary directory"
+  exit 1
+fi

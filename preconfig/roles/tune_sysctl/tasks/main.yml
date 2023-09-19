@@ -1,0 +1,32 @@
+---
+# Required to run doclum on local workstation
+- name: Set gc_thresh settings
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/30-gc_thresh.conf
+  with_items:
+    - { name: net.ipv4.neigh.default.gc_thresh1, value: 1048576 }
+    - { name: net.ipv4.neigh.default.gc_thresh2, value: 2097152 }
+    - { name: net.ipv4.neigh.default.gc_thresh3, value: 4194304 }
+    - { name: net.ipv6.neigh.default.gc_thresh1, value: 1048576 }
+    - { name: net.ipv6.neigh.default.gc_thresh2, value: 2097152 }
+    - { name: net.ipv6.neigh.default.gc_thresh3, value: 4194304 }
+
+# Required to run doclum on local workstation
+- sysctl:
+    name: fs.inotify.max_user_watches
+    value: 524288
+    sysctl_set: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/20-inotify.conf
+
+# Required to run doclum on local workstation
+- sysctl:
+    name: net.core.netdev_max_backlog
+    value: 2000
+    sysctl_set: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/20-network.conf
